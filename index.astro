@@ -1,0 +1,614 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Tebak Member JKT48" description="Game interaktif tebak member JKT48 berdasarkan foto dan jikoshoukai">
+  <div id="game-container" class="text-center bg-white p-5 rounded-lg shadow-xl animate-slide-in max-w-2xl w-full mx-4">
+    <h1 class="text-3xl font-bold mb-4 text-gray-800">Tebak Member JKT48</h1>
+    
+    <a 
+      href="https://cekoshiku.dreamliner21.xyz" 
+      id="home-btn"
+      class="inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200 mb-4"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <i class="bi bi-house text-lg"></i>
+    </a>
+
+    <!-- Form Input Nama -->
+    <div id="name-input-container" class="hidden">
+      <input 
+        type="text" 
+        id="name-input" 
+        placeholder="Masukkan nama Anda"
+        class="w-4/5 mt-2 px-4 py-3 rounded-md text-base border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        maxlength="50"
+      />
+      <button 
+        id="main-now-btn" 
+        class="mt-2 px-6 py-3 bg-blue-500 text-white rounded-md text-base border-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-600 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        Main Sekarang
+      </button>
+    </div>
+
+    <!-- Tombol Start -->
+    <button 
+      id="start-btn" 
+      class="mt-2 px-6 py-3 bg-green-500 text-white rounded-md text-base border-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-600 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+    >
+      Start Game
+    </button>
+
+    <!-- Game Area -->
+    <div id="countdown-container" class="hidden">
+      <p id="countdown-text" class="text-lg mb-4 text-gray-700">Bersiap untuk bermain</p>
+      <div id="countdown" class="text-6xl font-bold text-blue-600 animate-pulse">5</div>
+    </div>
+
+    <!-- Session Info -->
+    <div id="session-info" class="hidden text-center text-xl mt-5 p-4 bg-gray-50 rounded-lg">
+      <div class="flex justify-between items-center max-w-md mx-auto">
+        <p class="flex items-center gap-2">
+          <i class="bi bi-trophy text-yellow-500"></i>
+          Sesi: <span id="session-number" class="font-bold text-blue-600">1</span>
+        </p>
+        <p class="flex items-center gap-2">
+          <i class="bi bi-clock text-red-500"></i>
+          <span id="session-timer" class="font-bold text-red-600">120</span>s
+        </p>
+      </div>
+    </div>
+
+    <div id="question-container" class="hidden">
+      <div class="relative mb-5">
+        <img 
+          id="member-img" 
+          src="" 
+          alt="Member Image"
+          class="w-full max-w-sm h-auto max-h-80 mb-5 rounded-lg animate-fade-in mx-auto object-cover shadow-lg"
+          loading="lazy"
+        />
+        <div id="loading-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+      
+      <p id="jiko-text" class="my-4 text-lg animate-fade-in-delayed bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 italic"></p>
+      
+      <input 
+        type="text" 
+        id="answer-input" 
+        placeholder="Tebak nama member"
+        class="w-4/5 mt-2 px-4 py-3 rounded-md text-base border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        maxlength="100"
+        autocomplete="off"
+      />
+      
+      <div class="flex justify-center gap-2 mt-4 flex-wrap">
+        <button 
+          id="submit-btn" 
+          class="px-6 py-3 bg-gray-500 text-white rounded-md text-base border-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-600 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+        >
+          <i class="bi bi-check-circle mr-1"></i>Submit
+        </button>
+        <button 
+          id="hint-btn" 
+          class="px-6 py-3 bg-gray-800 text-white rounded-md text-base border-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-900 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2"
+        >
+          <i class="bi bi-lightbulb mr-1"></i>Hint
+        </button>
+      </div>
+      
+      <p id="result-message" class="text-lg font-bold mt-4 animate-pop-in min-h-[1.5rem]"></p>
+    </div>
+
+    <button 
+      id="nyerah-btn" 
+      class="hidden mt-4 px-6 py-3 bg-gray-400 text-white rounded-md text-base border-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-500 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+    >
+      <i class="bi bi-flag mr-1"></i>Nyerah
+    </button>
+  </div>
+
+  <!-- Custom Styles -->
+  <style>
+    @keyframes slide-in {
+      from {
+        transform: translateY(-100vh);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes countdown {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fade-in-delayed {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes pop-in {
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .animate-slide-in {
+      animation: slide-in 1s ease-out;
+    }
+
+    .animate-countdown {
+      animation: countdown 1s ease-in-out;
+    }
+
+    .animate-fade-in {
+      animation: fade-in 1s ease-in-out;
+    }
+
+    .animate-fade-in-delayed {
+      animation: fade-in-delayed 1.5s ease-in-out;
+    }
+
+    .animate-pop-in {
+      animation: pop-in 0.5s ease-out;
+    }
+  </style>
+
+  <!-- Game JavaScript -->
+  <script>
+    const dataUrl = 'https://raw.githubusercontent.com/paulszch/mainDB/master/tebakjkt48.json';
+    let data = [];
+    let currentMember = null;
+    let currentHint = '';
+    let currentSession = 1;
+    let sessionQuestions = [];
+    let sessionTimer;
+    let playerScore = 0;
+    let sessionScores = [];
+
+    // Audio dengan error handling
+    const correctSound = new Audio('https://j.top4top.io/m_3167c3qed1.mp3');
+    const incorrectSound = new Audio('https://d.top4top.io/m_3167u9am41.mp3');
+    
+    correctSound.onerror = () => console.log('Could not load correct sound');
+    incorrectSound.onerror = () => console.log('Could not load incorrect sound');
+
+    // Event Listeners
+    document.getElementById('start-btn')?.addEventListener('click', showNameInput);
+    document.getElementById('main-now-btn')?.addEventListener('click', startGameAfterNameInput);
+    document.getElementById('submit-btn')?.addEventListener('click', checkAnswer);
+    document.getElementById('nyerah-btn')?.addEventListener('click', giveUp);
+    document.getElementById('hint-btn')?.addEventListener('click', showHint);
+    
+    // Enter key support
+    document.getElementById('name-input')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') startGameAfterNameInput();
+    });
+    
+    document.getElementById('answer-input')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkAnswer();
+    });
+
+    function showNameInput() {
+      document.getElementById('start-btn')?.classList.add('hidden');
+      document.getElementById('name-input-container')?.classList.remove('hidden');
+      document.getElementById('name-input')?.focus();
+    }
+
+    function startGameAfterNameInput() {
+      const nameInput = document.getElementById('name-input');
+      const name = nameInput?.value.trim();
+      
+      if (!name || name === '') {
+        Swal.fire({
+          title: 'Peringatan!',
+          text: 'Masukkan nama terlebih dahulu!',
+          icon: 'warning',
+          confirmButtonColor: '#3b82f6'
+        });
+        nameInput?.focus();
+        return;
+      }
+
+      localStorage.setItem('playerName', name);
+      document.getElementById('name-input-container')?.classList.add('hidden');
+      startCountdown();
+    }
+
+    async function startCountdown() {
+      const countdownText = document.getElementById('countdown-text');
+      const countdownNum = document.getElementById('countdown');
+      const countdownContainer = document.getElementById('countdown-container');
+      
+      if (countdownText) countdownText.innerText = 'Bersiap untuk bermain';
+      if (countdownNum) countdownNum.innerText = '5';
+      countdownContainer?.classList.remove('hidden');
+      
+      const countdownInterval = setInterval(() => {
+        const countdown = parseInt(countdownNum?.innerText || '0');
+        const newCount = countdown - 1;
+        
+        if (newCount > 0) {
+          if (countdownNum) countdownNum.innerText = newCount.toString();
+        } else {
+          clearInterval(countdownInterval);
+          countdownContainer?.classList.add('hidden');
+          startGame();
+        }
+      }, 1000);
+    }
+
+    async function startGame() {
+      try {
+        showLoadingSpinner(true);
+        const response = await fetch(dataUrl);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        data = await response.json();
+        showLoadingSpinner(false);
+        
+        document.getElementById('nyerah-btn')?.classList.remove('hidden');
+        document.getElementById('hint-btn')?.classList.remove('hidden');
+        document.getElementById('session-info')?.classList.remove('hidden');
+        document.getElementById('question-container')?.classList.remove('hidden');
+        
+        loadSession();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        showLoadingSpinner(false);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Gagal memuat data. Periksa koneksi internet Anda.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    }
+
+    function showLoadingSpinner(show) {
+      const spinner = document.getElementById('loading-spinner');
+      if (show) {
+        spinner?.classList.remove('hidden');
+      } else {
+        spinner?.classList.add('hidden');
+      }
+    }
+
+    function loadSession() {
+      if (currentSession <= 8) {
+        sessionQuestions = getRandomQuestions(data, 5);
+        startSessionTimer();
+        loadQuestion();
+      } else {
+        endGame('🎉 Selamat! Kamu telah menyelesaikan semua sesi! 🎉');
+      }
+    }
+
+    function getRandomQuestions(data, count) {
+      const questions = [];
+      const usedIndices = new Set();
+      
+      while (questions.length < count && usedIndices.size < data.length) {
+        const randomIndex = Math.floor(Math.random() * data.length);
+        if (!usedIndices.has(randomIndex)) {
+          usedIndices.add(randomIndex);
+          questions.push(data[randomIndex]);
+        }
+      }
+      return questions;
+    }
+
+    function loadQuestion() {
+      if (sessionQuestions.length > 0) {
+        currentMember = sessionQuestions.shift();
+        const memberImg = document.getElementById('member-img');
+        const jikoText = document.getElementById('jiko-text');
+        const answerInput = document.getElementById('answer-input');
+        
+        if (memberImg && currentMember.img) {
+          showLoadingSpinner(true);
+          memberImg.src = currentMember.img;
+          memberImg.onload = () => showLoadingSpinner(false);
+          memberImg.onerror = () => {
+            showLoadingSpinner(false);
+            console.error('Failed to load image:', currentMember.img);
+          };
+        }
+        
+        if (jikoText) jikoText.innerText = currentMember.jiko || 'Jikoshoukai tidak tersedia';
+        if (answerInput) answerInput.value = '';
+        
+        currentHint = generateHint(currentMember.jawaban);
+        answerInput?.focus();
+      } else {
+        endSession();
+      }
+    }
+
+    function checkAnswer() {
+      const answerInput = document.getElementById('answer-input');
+      const answerValue = answerInput?.value.trim().toUpperCase();
+      const correctAnswer = currentMember?.jawaban.toUpperCase();
+
+      if (!answerValue || answerValue === '') {
+        Swal.fire({
+          title: 'Peringatan!',
+          text: 'Masukkan jawaban terlebih dahulu!',
+          icon: 'warning',
+          confirmButtonColor: '#f59e0b'
+        });
+        answerInput?.focus();
+        return;
+      }
+
+      if (answerValue === correctAnswer) {
+        correctSound.play().catch(() => {});
+        playerScore += 10;
+        Swal.fire({
+          title: '✅ Benar!',
+          text: `Jawaban kamu benar! +10 Poin\nTotal: ${playerScore} poin`,
+          icon: 'success',
+          confirmButtonColor: '#10b981',
+          timer: 2000
+        });
+        loadQuestion();
+      } else {
+        incorrectSound.play().catch(() => {});
+        Swal.fire({
+          title: '❌ Salah!',
+          text: `Jawaban yang benar: ${currentMember.jawaban}\nCoba lagi!`,
+          icon: 'error',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+
+      if (answerInput) answerInput.value = '';
+      answerInput?.focus();
+    }
+
+    function showHint() {
+      Swal.fire({
+        title: '💡 Hint',
+        text: currentHint,
+        icon: 'info',
+        confirmButtonColor: '#3b82f6'
+      });
+    }
+
+    function generateHint(answer) {
+      if (!answer) return 'Tidak ada hint tersedia';
+      
+      const hintArray = answer.split('');
+      let hint = '';
+      const numToReveal = Math.max(1, Math.ceil(answer.length / 2));
+      const indicesToReveal = new Set();
+      
+      while (indicesToReveal.size < numToReveal) {
+        const randomIndex = Math.floor(Math.random() * answer.length);
+        indicesToReveal.add(randomIndex);
+      }
+
+      hintArray.forEach((char, index) => {
+        hint += indicesToReveal.has(index) ? char : '_';
+      });
+
+      return hint;
+    }
+
+    function startSessionTimer() {
+      const sessionTimerElement = document.getElementById('session-timer');
+      let timeRemaining = 120; // 2 menit
+
+      if (sessionTimerElement) sessionTimerElement.innerText = timeRemaining.toString();
+
+      sessionTimer = setInterval(() => {
+        timeRemaining--;
+        if (sessionTimerElement) {
+          sessionTimerElement.innerText = timeRemaining.toString();
+          
+          // Warning colors
+          if (timeRemaining <= 30) {
+            sessionTimerElement.className = 'font-bold text-red-600 animate-pulse';
+          } else if (timeRemaining <= 60) {
+            sessionTimerElement.className = 'font-bold text-yellow-600';
+          }
+        }
+
+        if (timeRemaining <= 0) {
+          clearInterval(sessionTimer);
+          endSession();
+        }
+      }, 1000);
+    }
+
+    function endSession() {
+      if (sessionTimer) clearInterval(sessionTimer);
+      sessionScores.push(playerScore);
+
+      const isLastSession = currentSession >= 8;
+      const message = isLastSession 
+        ? `🏆 Semua sesi selesai! Skor sesi ini: ${playerScore} poin`
+        : `⏰ Sesi ${currentSession} selesai! Skor: ${playerScore} poin`;
+
+      Swal.fire({
+        title: 'Sesi Selesai!',
+        text: message,
+        icon: 'info',
+        showDenyButton: !isLastSession,
+        showCancelButton: !isLastSession,
+        confirmButtonText: isLastSession ? 'Lihat Hasil Akhir' : 'Lanjut ke Sesi Berikutnya',
+        denyButtonText: 'Nyerah',
+        confirmButtonColor: '#10b981',
+        denyButtonColor: '#ef4444'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if (isLastSession) {
+            endGame('🎉 Selamat! Kamu telah menyelesaikan semua sesi! 🎉');
+          } else {
+            currentSession++;
+            playerScore = 0;
+            const sessionNumber = document.getElementById('session-number');
+            if (sessionNumber) sessionNumber.innerText = currentSession.toString();
+            startCountdown();
+          }
+        } else if (result.isDenied && !isLastSession) {
+          giveUp();
+        }
+      });
+    }
+
+    function giveUp() {
+      Swal.fire({
+        title: '🏳️ Nyerah?',
+        text: "Kamu akan kembali ke halaman awal. Poin yang sudah didapat akan dihitung.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Nyerah!',
+        cancelButtonText: 'Tidak, Lanjut!',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const totalScore = calculateTotalScore();
+          endGame(`🏁 Permainan berakhir! Skor akhir: ${totalScore} poin.`);
+        }
+      });
+    }
+
+    function endGame(message) {
+      const totalScore = calculateTotalScore();
+      const avgScore = sessionScores.length > 0 ? (totalScore / sessionScores.length).toFixed(1) : 0;
+      
+      Swal.fire({
+        title: '🎮 Permainan Selesai!',
+        html: `
+          <div class="text-left">
+            <p class="text-center mb-4">${message}</p>
+            
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+              <h4 class="font-bold mb-2">📊 Statistik:</h4>
+              <ul class="space-y-1">
+                <li><strong>Total Sesi:</strong> ${sessionScores.length}</li>
+                <li><strong>Rata-rata Skor:</strong> ${avgScore} poin/sesi</li>
+                <li><strong>Skor Tertinggi:</strong> ${Math.max(...sessionScores, 0)} poin</li>
+              </ul>
+            </div>
+            
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <h4 class="font-bold mb-2">🏆 Poin per Sesi:</h4>
+              <ul class="space-y-1">
+                ${sessionScores.map((score, index) => 
+                  `<li>Sesi ${index + 1}: <span class="font-bold text-blue-600">${score} poin</span></li>`
+                ).join('')}
+              </ul>
+            </div>
+            
+            <div class="text-center mt-4 p-4 bg-green-50 rounded-lg">
+              <h3 class="text-2xl font-bold text-green-600">Total: ${totalScore} Poin</h3>
+            </div>
+          </div>
+        `,
+        icon: 'success',
+        confirmButtonText: '🏠 Kembali ke Halaman Awal',
+        confirmButtonColor: '#10b981',
+        width: '600px'
+      }).then(() => resetGame());
+    }
+
+    function calculateTotalScore() {
+      return sessionScores.reduce((total, score) => total + score, 0);
+    }
+
+    function resetGame() {
+      // Reset UI
+      document.getElementById('start-btn')?.classList.remove('hidden');
+      document.getElementById('name-input-container')?.classList.add('hidden');
+      document.getElementById('session-info')?.classList.add('hidden');
+      document.getElementById('question-container')?.classList.add('hidden');
+      document.getElementById('nyerah-btn')?.classList.add('hidden');
+      document.getElementById('hint-btn')?.classList.add('hidden');
+      document.getElementById('countdown-container')?.classList.add('hidden');
+      
+      // Reset form values
+      const nameInput = document.getElementById('name-input');
+      const answerInput = document.getElementById('answer-input');
+      const memberImg = document.getElementById('member-img');
+      const jikoText = document.getElementById('jiko-text');
+      const sessionNumber = document.getElementById('session-number');
+      const sessionTimer = document.getElementById('session-timer');
+      
+      if (nameInput) nameInput.value = '';
+      if (answerInput) answerInput.value = '';
+      if (memberImg) memberImg.src = '';
+      if (jikoText) jikoText.innerText = '';
+      if (sessionNumber) sessionNumber.innerText = '1';
+      if (sessionTimer) {
+        sessionTimer.innerText = '120';
+        sessionTimer.className = 'font-bold text-red-600';
+      }
+      
+      // Reset game state
+      currentSession = 1;
+      playerScore = 0;
+      sessionScores = [];
+      sessionQuestions = [];
+      currentMember = null;
+      currentHint = '';
+      
+      // Clear timers
+      if (sessionTimer) {
+        clearInterval(sessionTimer);
+      }
+      
+      // Hide loading spinner
+      showLoadingSpinner(false);
+      
+      // Focus on start button
+      document.getElementById('start-btn')?.focus();
+    }
+
+    // Initialize game on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if player name exists
+      const savedName = localStorage.getItem('playerName');
+      if (savedName) {
+        const nameInput = document.getElementById('name-input');
+        if (nameInput) nameInput.value = savedName;
+      }
+      
+      // Focus on start button
+      document.getElementById('start-btn')?.focus();
+    });
+  </script>
+</Layout>
